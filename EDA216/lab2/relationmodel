@@ -1,0 +1,12 @@
+Ticket  -  Owns(moviename, date, theater)
+
+
+Shows(theaterName, movieName, date)
+
+reserve(userId, )
+
+theater(_id_, name, seats)
+movie(_id_, name)
+performance(id, _movie_id_, _theater_id_, _date_)
+user(_id_, userName, name, address, phoneNumber)
+Reservations(_id, _performance_id_, _user_id_)
