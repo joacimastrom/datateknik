@@ -13,6 +13,7 @@ public class Database {
      */
     private Connection conn;
     private String currName;
+	private int mutex = 0;
         
     /**
      * Create the database interface object. Connection to the database
@@ -195,37 +196,67 @@ public List<String> getDates(String m) {
 	
 
 	public boolean bookTicket(String mname, String date) {
+		
+		
 		Integer pID = 0;
 		Statement stmt = null; 
-		String query = "select id from performances where movie_name = '" + mname + "' and theDate = '" + date + "'";
+		String query = "insert into exclude(mutid) values(1)";
 
+		
 		try {
 			stmt = conn.createStatement();
+			stmt.executeUpdate(query);
+			query = "select id from performances where movie_name = '" + mname + "' and theDate = '" + date + "'";
 			ResultSet rs = stmt.executeQuery(query);
 			
 			while (rs.next()) {
 				pID = rs.getInt("id");
 			}
 			
+			query = "insert into Reservations(performanceid, user_name) values(" + pID + ", '" + currName + "')";
+			stmt.executeUpdate(query);
+			
+			query = "delete from exclude where mutid=1";
+			stmt.executeUpdate(query);
+
+			return true;
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		stmt = null; 
-		query = "insert into Reservations(performanceid, user_name) values(" + pID + ", '" + currName + "')";
+			query = "delete from exclude where mutid=1";
+			try {
+				stmt = conn.createStatement();
+				stmt.executeUpdate(query);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
+		}
+		return false;
+	}
+	
+    /* --- TODO: insert more own code here --- */
+
+
+	public boolean checkMutex() {
+		Statement stmt = null;
+		String query = "select * from exclude";
+		
 		try {
 			stmt = conn.createStatement();
-			stmt.executeUpdate(query);
-			return true;
-			
-			
+			ResultSet rs = stmt.executeQuery(query);
+		
+			if (rs.next()) {
+				return true;	
+				}			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
+		
+		
 		return false;
 	}
-    /* --- TODO: insert more own code here --- */
-}
+	}
