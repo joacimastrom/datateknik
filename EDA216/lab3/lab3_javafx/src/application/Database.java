@@ -13,7 +13,7 @@ public class Database {
      */
     private Connection conn;
     private String currName;
-	private int mutex = 0;
+
         
     /**
      * Create the database interface object. Connection to the database
@@ -82,7 +82,6 @@ public class Database {
   		
   		Statement stmt = null; 
 		String query = "select id, theater_name, seats from performances natural join theaters where movie_name='" + mTitle + "' and theDate='" + mDate + "'";
-		
 		Integer mFreeSeats = 0;
 		String mVenue = "";
 		Integer id = 0;
@@ -199,25 +198,35 @@ public List<String> getDates(String m) {
 		
 		
 		Integer pID = 0;
-		Statement stmt = null; 
+		PreparedStatement stmt = null; 
+//		Statement mstmt = null;
 		String query = "insert into exclude(mutid) values(1)";
 
 		
 		try {
-			stmt = conn.createStatement();
-			stmt.executeUpdate(query);
-			query = "select id from performances where movie_name = '" + mname + "' and theDate = '" + date + "'";
-			ResultSet rs = stmt.executeQuery(query);
+			stmt = conn.prepareStatement(query);
+			stmt.executeUpdate();
+			
+			query = "select id from performances where movie_name = ? and theDate = ?" ;
+			stmt = conn.prepareStatement(query);
+			stmt.setString(1, mname);
+			stmt.setString(2, date);		
+			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 				pID = rs.getInt("id");
 			}
 			
-			query = "insert into Reservations(performanceid, user_name) values(" + pID + ", '" + currName + "')";
-			stmt.executeUpdate(query);
+			query = "insert into Reservations(performanceid, user_name) values(? , ?)";
+			stmt = conn.prepareStatement(query);
+			stmt.setInt(1, pID);
+			stmt.setString(2, currName);
+
+			stmt.executeUpdate();
 			
 			query = "delete from exclude where mutid=1";
-			stmt.executeUpdate(query);
+			stmt = conn.prepareStatement(query);
+			stmt.executeUpdate();
 
 			return true;
 			
@@ -226,8 +235,8 @@ public List<String> getDates(String m) {
 			e.printStackTrace();
 			query = "delete from exclude where mutid=1";
 			try {
-				stmt = conn.createStatement();
-				stmt.executeUpdate(query);
+				stmt = conn.prepareStatement(query);
+				stmt.executeUpdate();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

@@ -36,41 +36,70 @@ public class Pizza {
 	static void calculate(int n, int[] price, int m, int[] buy, int[] free) {
 		Store store = new Store();
 
-		IntVar[] bought = new IntVar[n2];
-		IntVar[] free = new IntVar[n2];
-		for (int i = 0; i<n2; i++){
-			bought[i] = new IntVar(store, "bought" + i, 0, 1);
-			free[i] = new IntVar(store, "free" + i, 0, 1);
-			store.impose(new XneY(bought[i], free[i]));
+
+		IntVar[] usedCoup = new IntVar[m];
+	//	IntVar[] coupBuy = new IntVar[m];
+	//	IntVar[] coupFree = new IntVar[m];
+		IntVar[][] coupBought = new IntVar[m][n];
+		IntVar[][] coupFree = new IntVar[m][n];
+		IntVar[][] totPiz = new IntVar[n][m];
+		IntVar[][] coupBoughtPrice = new IntVar[m][n];
+		IntVar[][] coupFreePrice = new IntVar[m][n];
+		IntVar one = new IntVar(store, "one", 1, 1);
+		for (int i = 0; i < m; i++){
+			for (int j = 0; j < n; j++){
+				coupBought[i][j] = new IntVar(store, "coupBought" + i + j, 0, 1);
+				coupFree[i][j] = new IntVar(store, "coupFree" + i + j, 0, 1);
+				totPiz[j][i] = new IntVar(store, "totPiz" + j + i, 0, 1);
+				store.impose(new XplusYlteqZ(coupBought[i][j], coupFree [i][j], one));
+				coupBoughtPrice[i][j] = new IntVar(store, "coupBoughtPrice" + i + j, 0, 100);
+				coupFreePrice[i][j] = new IntVar(store, "coupFreePrice" + i + j, 0, 100);
+				PrimitiveConstraint c1 = new XeqY(coupBought[i][j], 1);
+				PrimitiveConstraint c2 = new XeqY(coupBoughtPrice[i][j], price[j]);
+				PrimitiveConstraint c3 = new Xeqy(coupBoughtPrice[i][j], 100);
+				PrimitiveConstraint c4 = new XeqY(coupFree[i][j], 1);
+				PrimitiveConstraint c5 = new XeqY(coupFreePrice[i][j], price[j]);
+				PrimitiveConstraint c6 = new XeqY(coupFreePrice[i][j], 0);
+				store.impose(new IfThenElse(c1, c2, c3));
+				store.impose(new IfThenElse(c4, c5, c6));
+				store.impose(new XplusYeqZ(coupBought[i][j], coupFree[i][j], totPiz[j][i]));
+			}
+			store.impose(new XlteqY(max(coupFreePrice[i]), min(coupBoughtPrice[i])));
+		}
+
+		for (int i = 0; i<n; i++){
+			store.impose(new Sum(totPiz[i], one));
+		}
+
+		for (int i = 0; i<m; i++) {
+			store.impose(new LinearInt(store, coupBought[i], {1, 1, 1, 1}, "=", buy[i]));
+			store.impose(new LinearInt(store, coupFree[i], {1, 1, 1, 1} "<=", free[i]);
+
+
+
 
 		}
+
+		// IntVar[] bought = new IntVar[n];
+		// IntVar[] fre = new IntVar[n];
+		// for (int i = 0; i<m; i++){
+		// 	usedCoup[i] = new IntVar(store, "coup" + i, 0, 1);
+		// 	coupBuy = new IntVar(store, "coupBuy"+i, buy[i], buy[i]);
+		// 	coupFree = new Intvar(store, "coupFree"+i, 0, free[i]);
+		// }
+		// for (int i = 0; i<n; i++){
+		// 	bought[i] = new IntVar(store, "bought" + i, 0, 1);
+		// 	fre[i] = new IntVar(store, "free" + i, 0, 1);
+		// 	store.impose(new XneqY(bought[i], fre[i]));
+		//
+		// }
 		int maxPrice = 0;
 		for (int p : price) {
-			maxPrice += price;
+			maxPrice = maxPrice + p;
 		}
 
-		// IntVar pizzaCost = new IntVar(store, "pizzaCost", 0, maxPrice);
-
-
-		// IntVar coup1 = new IntVar(store, "coup1", buy[1], buy[1]+free[1]);
-		// IntVar coup2 = new IntVar(store, "coup2", buy[2], buy[2]+free[2]);
-		// IntVar coup3 = new IntVar(store, "coup3", buy[3], buy[3]+free[3]);
-		// IntVar coup4 = new IntVar(store, "coup4", buy[4], buy[4]+free[4]);
-		// IntVar coup5 = new IntVar(store, "coup5", buy[5], buy[5]+free[5]);
-		// IntVar coup6 = new IntVar(store, "coup6", buy[6], buy[6]+free[6]);
-		// IntVar coup7 = new IntVar(store, "coup7", buy[7], buy[7]+free[7]);
-
-		// IntVar maxPizza = new IntVar(store, "maxPizza", n, n);
-
-		// IntVar[] vouchers = {coup1, coup2, coup3, coup4, coup5, coup6, coup7};
-		// for (int i = 0; i< m; i++) {
-		// 	store.impose(new XltC(vouchers[i], 2));
-		// }
-
-		// store.impose(new SumInt(store, vouchers, "==", maxPizza));
-
-
 		store.impose(new LinearInt(store, bought, price, "<=", maxPrice));
+		store.impose(new LinearInt );
 
 
 	}

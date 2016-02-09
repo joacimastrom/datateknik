@@ -48,6 +48,10 @@ FOREIGN KEY(user_name)
 CONSTRAINT oncePerPerformance UNIQUE (performanceId,user_name)
 );
 
+create table Exclude (
+mutid int PRIMARY KEY NOT NULL
+);
+
 SET foreign_key_checks = 1;
 
 insert into Users(user_name, name, adress, phoneNumber) values('Attoff', 'Viktor Attoff', 'Delphi', '123');
