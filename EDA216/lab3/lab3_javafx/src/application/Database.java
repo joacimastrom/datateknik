@@ -177,6 +177,7 @@ public List<String> getDates(String m) {
 		
 		try {
 			stmt = conn.prepareStatement(query);
+			stmt.setString(1, m);
 			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
