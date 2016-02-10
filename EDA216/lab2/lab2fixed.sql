@@ -44,8 +44,7 @@ user_name char(20) NOT NULL,
 FOREIGN KEY(performanceId)
   REFERENCES Performances(id),
 FOREIGN KEY(user_name)
-  REFERENCES Users(user_name),
-CONSTRAINT oncePerPerformance UNIQUE (performanceId,user_name)
+  REFERENCES Users(user_name)
 );
 
 create table Exclude (

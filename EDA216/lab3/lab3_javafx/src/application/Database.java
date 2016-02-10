@@ -80,15 +80,17 @@ public class Database {
 	
   	public Show getShowData(String mTitle, String mDate) {
   		
-  		Statement stmt = null; 
-		String query = "select id, theater_name, seats from performances natural join theaters where movie_name='" + mTitle + "' and theDate='" + mDate + "'";
+  		PreparedStatement stmt = null; 
+		String query = "select id, theater_name, seats from performances natural join theaters where movie_name=? and theDate=?";
 		Integer mFreeSeats = 0;
 		String mVenue = "";
 		Integer id = 0;
 		
 		try {
-			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			stmt = conn.prepareStatement(query);
+			stmt.setString(1, mTitle);
+			stmt.setString(2, mDate);
+			ResultSet rs = stmt.executeQuery();
 
 			
 			while (rs.next()) {
@@ -97,26 +99,21 @@ public class Database {
 				mVenue = rs.getString("theater_name");		
 						}
 			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		
-		query = "select count(*) as count from reservations where performanceId ='" + id + "'";
-		
-		try {
-			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			query = "select count(*) as count from reservations where performanceId =?";
+			stmt = conn.prepareStatement(query);
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
 
 			
 			while (rs.next()) {
 				mFreeSeats = mFreeSeats - rs.getInt("count");	
 						}
+
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}		
 		
 		
 		
@@ -124,14 +121,15 @@ public class Database {
 	}
   	
   	public boolean login(String uname) {
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         currName = uname;
         
-        String query = "select user_name from users where user_name like '" + uname + "'";
+        String query = "select user_name from users where user_name=?";
         
         try {
-			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			stmt = conn.prepareStatement(query);
+			stmt.setString(1, currName);
+			ResultSet rs = stmt.executeQuery();
 			if(rs.next()) {
 				return true;
 			}	
@@ -148,12 +146,12 @@ public class Database {
 		
 		List<String> movies = new ArrayList<String>();
 		
-		Statement stmt = null; 
+		PreparedStatement stmt = null; 
 		String query = "select movie_name from movies";
 		
 		try {
-			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			stmt = conn.prepareStatement(query);
+			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 
@@ -174,12 +172,12 @@ public List<String> getDates(String m) {
 		
 		List<String> dates = new ArrayList<String>();
 		
-		Statement stmt = null; 
-		String query = "select theDate from performances where movie_name like '" + m + "'";
+		PreparedStatement stmt = null; 
+		String query = "select theDate from performances where movie_name=?";
 		
 		try {
-			stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			stmt = conn.prepareStatement(query);
+			ResultSet rs = stmt.executeQuery();
 			
 			while (rs.next()) {
 				dates.add(rs.getString("theDate"));
@@ -199,7 +197,6 @@ public List<String> getDates(String m) {
 		
 		Integer pID = 0;
 		PreparedStatement stmt = null; 
-//		Statement mstmt = null;
 		String query = "insert into exclude(mutid) values(1)";
 
 		
@@ -245,9 +242,6 @@ public List<String> getDates(String m) {
 		}
 		return false;
 	}
-	
-    /* --- TODO: insert more own code here --- */
-
 
 	public boolean checkMutex() {
 		Statement stmt = null;
