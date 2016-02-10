@@ -179,7 +179,7 @@ public List<String> getDates(String m) {
 			stmt = conn.prepareStatement(query);
 			stmt.setString(1, m);
 			ResultSet rs = stmt.executeQuery();
-			
+			// lutz är en bajsrumpa
 			while (rs.next()) {
 				dates.add(rs.getString("theDate"));
 			}
