@@ -30,7 +30,7 @@ constraint forall(i in 1..nodes)(if opTimes[i] == 1 then totTimes[i] < 2 else to
 % DY
 array[1..nodes] of var 1..1: totCost;
 
-%diffn for adders
+%diffn for operators
 constraint diffn(ops, resources, totTimes, totCost);
 
 %set dependencies
