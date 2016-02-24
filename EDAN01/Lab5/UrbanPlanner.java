@@ -37,7 +37,7 @@ public class UrbanPlanner {
 			store.impose(new LexOrder(rowsAndCols[n+i-1],rowsAndCols[n+i],false));
 		}
 
-		// Setup score system and point destribution
+		// Setup score system and point distribution
 		IntVar rowcolsums[] = new IntVar[2*n];
 		for (int i = 0; i < 2*n; i++) {
 			rowcolsums[i] = new IntVar(store);
